@@ -1,0 +1,84 @@
+# Criar uma lista de 5 números a partir de entradas do usuário e armazenar em memória
+
+.data
+listad:	.word 1, 2, 78, 9
+digitar:	.asciiz "Digite um número: "
+maior_num:	.asciiz "O maior número da lista é: "
+lista:		.word 
+lista2: 	.word
+buffer:		.space 512
+
+.text
+#procedimentos: 
+#entrada: a0..a3
+#saída: v0, v1
+main:
+
+la $a0, listad		#s0 = endereço da base da lista
+li $a1, 5			# tamanho da lista
+
+jal proc_obter_lista		#PC=19		ra=PC+1
+
+la $a0, listad		#s0 = endereço da base da lista
+li $a1, 5	
+jal proc_maior_valor
+move $a0, $v0
+
+# mostrar na tela o maior número
+li $v0, 4
+la $a0, maior_num
+syscall
+
+li $v0, 1
+syscall
+
+
+fim:
+li $v0, 10		# 10 - código de finalização
+syscall
+
+
+
+
+proc_maior_valor:
+	move $s0, $a0
+	move $t1, $a1
+	# maior valor em $t0
+maior: lw $t0, 0($s0)
+	
+menor:	addi $s0, $s0, 4	# s0 = s0+4
+	subi $t1, $t1, 1	# t1 = t1 -1
+	lw $t2, 0 ($s0)
+	bge $t2, $t0, maior
+	bltz $t1, resultado
+	j menor
+resultado:
+	move $v0, $t0
+	jr $ra 
+
+
+proc_obter_lista:
+	# proc_obter_lista(a0, a1)
+	#s0 -> endereço base = a0
+	#t1 -> tamanho da lista = a1
+	move $s0, $a0
+	move $t1, $a1
+	
+	obter_num:
+
+	li $v0, 5		#f 5= obter inteiro
+	syscall
+	move $t0, $v0
+
+	sw $t0, 0($s0)		#armazenar na memória o valor lido
+
+	addi $s0, $s0, 4	# s0 = s0+4
+	subi $t1, $t1, 1	# t1 = t1 -1
+	bnez $t1, obter_num
+	
+	jr $ra	#return
+
+	
+	  
+		
+
